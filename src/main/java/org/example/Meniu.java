@@ -9,20 +9,29 @@ import java.util.Comparator;
 import java.util.stream.Collectors;
 import java.util.OptionalDouble;
 import java.util.Optional;
- class Meniu {
-     private Map<CategorieMeniu, List<Produs>>meniuStructurat;
-     public Meniu(){
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.*;
+import java.util.stream.Collectors;
+
+
+ public class Meniu {
+     private Map<CategorieMeniu, List<Produs>> meniuStructurat;
+
+     public Meniu() {
          this.meniuStructurat = new HashMap<>();
      }
 
-     public void adaugaProdus(Produs produs){
-         CategorieMeniu categorie=produs.getCategorie();
-         List<Produs> listaProdus=meniuStructurat.get(categorie);
-            if(listaProdus==null){
-                listaProdus=new ArrayList<>();
-                meniuStructurat.put(categorie,listaProdus);
-            }
-            listaProdus.add(produs);
+     public void adaugaProdus(Produs produs) {
+         CategorieMeniu categorie = produs.getCategorie();
+         List<Produs> listaProdus = meniuStructurat.get(categorie);
+         if (listaProdus == null) {
+             listaProdus = new ArrayList<>();
+             meniuStructurat.put(categorie, listaProdus);
+         }
+         listaProdus.add(produs);
      }
 
      public List<Produs> getAllProduse() {
@@ -68,11 +77,33 @@ import java.util.Optional;
 
      public Optional<Produs> cautaProdusDupaNume(String nume) {
          return getAllProduse().stream()
-
                  .filter(p -> p.getNume().equalsIgnoreCase(nume))
                  .findFirst();
      }
 
+     public void exportaInJSON(String caleFisier) {
+         Gson gson = new Gson();
 
+         try (FileWriter writer = new FileWriter(caleFisier)) {
+             gson.toJson(meniuStructurat, writer);
+             System.out.println("Meniu exportat în: " + caleFisier);
+         } catch (IOException e) {
+             System.out.println("Eroare la export: " + e.getMessage());
+         }
+     }
 
-}
+     public void afiseazaMeniu(String numeRestaurant) {
+         System.out.println("\n=== Meniul Restaurantului \"" + numeRestaurant + "\" ===\n");
+
+         for (CategorieMeniu categorie : CategorieMeniu.values()) {
+             List<Produs> produse = getProduseDinCategorie(categorie);
+             if (!produse.isEmpty()) {
+                 System.out.println("--- " + categorie.name() + " ---");
+                 for (Produs p : produse) {
+                     System.out.println(p.getDetaliiMeniu());
+                 }
+                 System.out.println();
+             }
+         }
+     }
+ }

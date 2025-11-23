@@ -14,7 +14,9 @@ public class ProdusComandat {
     public int getCantitate(){
         return cantitate;
 }
-public float getPret(){
-    return produs.getPret()*cantitate;}
+    public float getPret(){
+        return produs.getPret()* cantitate;
+    }
+
 }
 

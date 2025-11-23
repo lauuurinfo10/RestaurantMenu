@@ -1,6 +1,6 @@
 package org.example;
 
-public abstract class Produs {
+public abstract sealed class Produs permits Mancare,Bautura,Pizza {
     private String nume;
     private float pret;
     private CategorieMeniu categorie;
