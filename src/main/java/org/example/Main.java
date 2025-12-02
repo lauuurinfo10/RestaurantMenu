@@ -21,7 +21,6 @@ public class Main {
                 .adaugaTopping("Gorgonzola")
                 .build();
         meniu.adaugaProdus(pizza);
-
         meniu.afiseazaMeniu(config.getNumeRestaurant());
         System.out.println();
         Comanda comanda = new Comanda(config.getCotaTVA());
@@ -33,7 +32,7 @@ public class Main {
         float total = comanda.calculeazaPretCuTva(happyHour);
         System.out.println("Total cu Happy Hour: " + total + " RON\n");
 
-        System.out.println("=== Produse vegetariene ===");
+        System.out.println(" Produse vegetariene ");
         meniu.getVegetarieneSortateAlfabetic().forEach(p ->
                 System.out.println("- " + p.getNume())
         );
@@ -44,5 +43,6 @@ public class Main {
         );
 
         meniu.exportaInJSON("meniu_export.json");
+        RestaurantGUI.lanseaza(meniu, config.getNumeRestaurant());
     }
 }

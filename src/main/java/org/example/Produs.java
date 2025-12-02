@@ -6,31 +6,42 @@ public abstract sealed class Produs permits Mancare,Bautura,Pizza {
     private CategorieMeniu categorie;
     private boolean esteVegetarian;
 
-    public Produs(String nume,float pret,CategorieMeniu categorie,boolean esteVegetarian){
-        this.nume=nume;
-        this.pret=pret;
-        this.categorie=categorie;
-        this.esteVegetarian=esteVegetarian;
+    public Produs(String nume, float pret, CategorieMeniu categorie, boolean esteVegetarian) {
+        this.nume = nume;
+        this.pret = pret;
+        this.categorie = categorie;
+        this.esteVegetarian = esteVegetarian;
     }
-    public String getNume(){
+
+    public String getNume() {
         return nume;
     }
 
-    public float getPret(){
+    public float getPret() {
         return pret;
     }
 
-    public CategorieMeniu getCategorie(){
+    public CategorieMeniu getCategorie() {
         return categorie;
     }
 
-    public boolean getEsteVegetarian(){
+    public boolean getEsteVegetarian() {
         return esteVegetarian;
     }
 
-    public String getDetaliiMeniu(){
-        return "> "+getNume()+" - "+getPret()+ " RON -  "+getCantitate();
+    public void setPret(float pret) {
+        this.pret = pret;
+    }
+
+    public String getDetaliiMeniu() {
+        return "> " + getNume() + " - " + getPret() + " RON -  " + getCantitate();
 
     }
+
     public abstract String getCantitate();
+
+    @Override
+    public String toString() {
+        return getNume();
+    }
 }
