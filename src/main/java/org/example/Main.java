@@ -1,48 +1,47 @@
 package org.example;
 
+import java.util.List;
+
 public class Main {
     public static void main(String[] args) {
 
         Configuratie config = Configuratie.incarcaDinFisier("config.json");
-        Meniu meniu = new Meniu();
-        meniu.adaugaProdus(new Mancare("Pizza Margherita", 45.0f, CategorieMeniu.FelPrincipal, true, 450));
-        meniu.adaugaProdus(new Mancare("Paste Carbonara", 52.5f, CategorieMeniu.FelPrincipal, false, 400));
-        meniu.adaugaProdus(new Mancare("Cheesecake", 32.0f, CategorieMeniu.Desert, true, 150));
-        meniu.adaugaProdus(new Bautura("Limonada", 15.0f, CategorieMeniu.BauturiRacoritoare, true, 400));
-        meniu.adaugaProdus(new Bautura("Apa Plata", 8.0f, CategorieMeniu.BauturiRacoritoare, true, 500));
-        meniu.adaugaProdus(new Bautura("Coca-Cola", 12.0f, CategorieMeniu.BauturiRacoritoare, true, 200));
 
-        Pizza pizza = Pizza.builder("Quattro Formaggi")
-                .cuBlat("Subtire")
-                .cuSos("Sos de rosii")
-                .cuPret(55.0)
-                .vegetariana(true)
-                .adaugaTopping("Mozzarella")
-                .adaugaTopping("Gorgonzola")
-                .build();
-        meniu.adaugaProdus(pizza);
-        meniu.afiseazaMeniu(config.getNumeRestaurant());
-        System.out.println();
-        Comanda comanda = new Comanda(config.getCotaTVA());
-        comanda.adaugaProdus(meniu.getAllProduse().get(0), 2);
-        comanda.adaugaProdus(meniu.getAllProduse().get(2), 1);
-        comanda.afiseazaDetalii();
+        ProdusRepository repository = new ProdusRepository();
 
-        IstrategieReducere happyHour = new HappyHour();
-        float total = comanda.calculeazaPretCuTva(happyHour);
-        System.out.println("Total cu Happy Hour: " + total + " RON\n");
 
-        System.out.println(" Produse vegetariene ");
-        meniu.getVegetarieneSortateAlfabetic().forEach(p ->
-                System.out.println("- " + p.getNume())
-        );
+        List<Produs> produseExistente = repository.gasesteToate();
 
-        System.out.println("\n=== Preț mediu deserturi ===");
-        meniu.getPretMediuDeserturi().ifPresent(pret ->
-                System.out.println("Preț mediu: " + pret + " RON")
-        );
+        if (produseExistente.isEmpty()) {
+            System.out.println("Baza de date e goală. Populez cu date inițiale...");
 
-        meniu.exportaInJSON("meniu_export.json");
-        RestaurantGUI.lanseaza(meniu, config.getNumeRestaurant());
+
+            repository.salveaza(new Mancare("Pizza Margherita", 45.0f, CategorieMeniu.FelPrincipal, true, 450));
+            repository.salveaza(new Mancare("Paste Carbonara", 52.5f, CategorieMeniu.FelPrincipal, false, 400));
+            repository.salveaza(new Mancare("Salată Caesar", 35.0f, CategorieMeniu.Aperitive, false, 300));
+            repository.salveaza(new Mancare("Tiramisu", 28.0f, CategorieMeniu.Desert, true, 200));
+
+            repository.salveaza(new Bautura("Limonada", 15.0f, CategorieMeniu.BauturiRacoritoare, true, 400));
+            repository.salveaza(new Bautura("Apa Plata", 8.0f, CategorieMeniu.BauturiRacoritoare, true, 500));
+            repository.salveaza(new Bautura("Vin Rosu", 45.0f, CategorieMeniu.BauturiAlcoolice, false, 150));
+
+            Pizza pizza = Pizza.builder("Quattro Formaggi")
+                    .cuBlat("Subtire")
+                    .cuSos("Sos de rosii")
+                    .cuPret(55.0)
+                    .vegetariana(true)
+                    .adaugaTopping("Mozzarella")
+                    .adaugaTopping("Gorgonzola")
+                    .build();
+            repository.salveaza(pizza);
+
+            System.out.println("Date inițiale adăugate!");
+        } else {
+            System.out.println("Baza de date conține " + produseExistente.size() + " produse.");
+        }
+
+
+        System.out.println("Lansare interfață grafică...");
+        RestaurantGUI.lanseaza(repository, config.getNumeRestaurant());
     }
 }

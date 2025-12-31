@@ -1,13 +1,22 @@
 package org.example;
 
+import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+@Entity
+@DiscriminatorValue("Pizza")
 public final class Pizza extends Produs {
-    private final String blat;
-    private final String sos;
-    private final List<String> toppinguri;
+    private  String blat;
+    private  String sos;
+
+    @ElementCollection
+    @CollectionTable(name = "pizza_toppinguri", joinColumns = @JoinColumn(name = "pizza_id"))
+    @Column(name = "topping")
+    private  List<String> toppinguri= new ArrayList<>();
+
+    protected Pizza(){}
 
     private Pizza(PizzaBuilder builder) {
         super("Pizza " + builder.numePizza, (float) builder.pret, CategorieMeniu.FelPrincipal, builder.esteVegetarian);

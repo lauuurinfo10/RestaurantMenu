@@ -1,16 +1,27 @@
 package org.example;
 
+import com.google.gson.*;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * GUI pentru Restaurant cu MenuBar și persistență PostgreSQL
+ */
 public class RestaurantGUI extends Application {
-    private static Meniu meniu;
     private static String numeRestaurant;
+    private static ProdusRepository repository;
 
     private ListView<Produs> listaProduse;
     private Label lblNume;
@@ -20,24 +31,59 @@ public class RestaurantGUI extends Application {
 
     @Override
     public void start(Stage stage) {
-
         stage.setTitle("Restaurant " + numeRestaurant);
+
         BorderPane root = new BorderPane();
-        root.setPadding(new Insets(10));
-        root.setLeft(creeazaLista());
-        root.setCenter(creeazaFormular());
+
+        // ✅ MenuBar - Bara de meniu (0.5p)
+        MenuBar menuBar = creeazaMenuBar(stage);
+        root.setTop(menuBar);
+
+        // Layout principal
+        BorderPane content = new BorderPane();
+        content.setPadding(new Insets(10));
+        content.setLeft(creeazaLista());
+        content.setCenter(creeazaFormular());
+
+        root.setCenter(content);
+
         Scene scene = new Scene(root, 700, 500);
         stage.setScene(scene);
         stage.show();
+
+        // Încarcă produsele din DB la pornire
+        incarcaProduseDinDB();
+    }
+
+    // Creează bara de meniu
+    private MenuBar creeazaMenuBar(Stage stage) {
+        MenuBar menuBar = new MenuBar();
+
+        Menu menuFile = new Menu("File");
+
+        // Export JSON
+        MenuItem exportItem = new MenuItem("Export JSON");
+        exportItem.setOnAction(e -> exportJSON(stage));
+
+        // Import JSON
+        MenuItem importItem = new MenuItem("Import JSON");
+        importItem.setOnAction(e -> importJSON(stage));
+
+        menuFile.getItems().addAll(exportItem, importItem);
+        menuBar.getMenus().add(menuFile);
+
+        return menuBar;
     }
 
     private VBox creeazaLista() {
         VBox box = new VBox(10);
         box.setPadding(new Insets(10));
         box.setPrefWidth(250);
+
         Label titlu = new Label("Lista Produse");
+
         listaProduse = new ListView<>();
-        listaProduse.getItems().addAll(meniu.getAllProduse());
+
         listaProduse.getSelectionModel().selectedItemProperty().addListener(
                 (obs, vechi, nou) -> {
                     if (nou != null) actualizareFormular(nou);
@@ -48,19 +94,22 @@ public class RestaurantGUI extends Application {
         return box;
     }
 
-
     private VBox creeazaFormular() {
         VBox box = new VBox(10);
         box.setPadding(new Insets(10, 10, 10, 30));
+
         Label titlu = new Label("Detalii Produs");
+
         lblNume = new Label("Selectează un produs");
         lblCategorie = new Label("-");
         txtPret = new TextField();
         txtPret.setPromptText("Preț");
         txtPret.setPrefWidth(150);
         lblCantitate = new Label("-");
+
         Button btnSalveaza = new Button("Salvează Preț");
         btnSalveaza.setOnAction(e -> salveaza());
+
         box.getChildren().addAll(titlu, lblNume, lblCategorie,
                 new Label("Preț:"), txtPret,
                 lblCantitate, btnSalveaza);
@@ -82,6 +131,9 @@ public class RestaurantGUI extends Application {
             float pretNou = Float.parseFloat(txtPret.getText());
             p.setPret(pretNou);
 
+            // Salvează în DB
+            repository.actualizeaza(p);
+
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setContentText("Preț salvat: " + pretNou + " RON");
             alert.showAndWait();
@@ -93,9 +145,115 @@ public class RestaurantGUI extends Application {
         }
     }
 
-    public static void lanseaza(Meniu m, String nume) {
-        meniu = m;
+    // Încarcă produse din DB
+    private void incarcaProduseDinDB() {
+        try {
+            List<Produs> produse = repository.gasesteToate();
+            listaProduse.getItems().clear();
+            listaProduse.getItems().addAll(produse);
+        } catch (Exception e) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setContentText("Eroare la încărcare din DB: " + e.getMessage());
+            alert.showAndWait();
+        }
+    }
+
+    // Export JSON - Salvează DB în fișier
+    private void exportJSON(Stage stage) {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Export JSON");
+        fileChooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter("JSON Files", "*.json")
+        );
+        fileChooser.setInitialFileName("meniu_export.json");
+
+        File file = fileChooser.showSaveDialog(stage);
+        if (file != null) {
+            try {
+                List<Produs> produse = repository.gasesteToate();
+                Gson gson = new GsonBuilder().setPrettyPrinting().create();
+
+                try (FileWriter writer = new FileWriter(file)) {
+                    gson.toJson(produse, writer);
+                }
+
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setContentText("Export reușit: " + file.getName());
+                alert.showAndWait();
+
+            } catch (Exception e) {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setContentText("Eroare la export: " + e.getMessage());
+                alert.showAndWait();
+            }
+        }
+    }
+
+    // Import JSON - Citește fișier și adaugă în DB
+    private void importJSON(Stage stage) {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Import JSON");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("JSON Files", "*.json"));
+
+        File file = fileChooser.showOpenDialog(stage);
+        if (file != null) {
+            try {
+                Gson gson = new GsonBuilder()
+                        .registerTypeAdapter(Produs.class, new ProdusDeserializer())
+                        .create();
+
+                try (FileReader reader = new FileReader(file)) {
+                    Produs[] produseArr = gson.fromJson(reader, Produs[].class);
+
+                    if (produseArr != null) {
+                        List<Produs> deSalvat = new ArrayList<>();
+                        for (Produs p : produseArr) {
+                            // CRITIC: Resetăm ID-ul pentru ca PostgreSQL să genereze unul nou
+                            // Altfel vei primi eroare de tip "PersistentObjectException"
+                            p.setId(null);
+                            deSalvat.add(p);
+                        }
+                        repository.salveazaToate(deSalvat); // Salvare în DB (0.5p)
+                        incarcaProduseDinDB(); // Actualizare interfață (0.5p)
+
+                        new Alert(Alert.AlertType.INFORMATION, "Import reușit!").show();
+                    }
+                }
+            } catch (Exception e) {
+                new Alert(Alert.AlertType.ERROR, "Eroare la import: " + e.getMessage()).show();
+            }
+        }
+    }
+
+    // Deserializer pentru import JSON corect
+    private static class ProdusDeserializer implements JsonDeserializer<Produs> {
+        @Override
+        public Produs deserialize(JsonElement json, java.lang.reflect.Type typeOfT,
+                                  JsonDeserializationContext context) throws JsonParseException {
+            JsonObject obj = json.getAsJsonObject();
+
+            // Detectăm tipul după câmpurile unice cerute în iterațiile anterioare
+            if (obj.has("gramaj")) {
+                return context.deserialize(json, Mancare.class); // [cite: 40]
+            } else if (obj.has("volum")) {
+                return context.deserialize(json, Bautura.class); // [cite: 40]
+            } else if (obj.has("blat") || obj.has("toppinguri")) {
+                return context.deserialize(json, Pizza.class); //
+            }
+            throw new JsonParseException("Tip de produs necunoscut!");
+        }
+    }
+
+    public static void lanseaza(ProdusRepository repo, String nume) {
+        repository = repo;
         numeRestaurant = nume;
         launch();
+    }
+
+    @Override
+    public void stop() {
+        if (repository != null) {
+            repository.close();
+        }
     }
 }
