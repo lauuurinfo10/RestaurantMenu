@@ -1,1 +1,74 @@
-{"FelPrincipal":[{"gramaj":450,"nume":"Pizza Margherita","pret":45.0,"categorie":"FelPrincipal","esteVegetarian":true},{"gramaj":400,"nume":"Paste Carbonara","pret":52.5,"categorie":"FelPrincipal","esteVegetarian":false},{"blat":"Subtire","sos":"Sos de rosii","toppinguri":["Mozzarella","Gorgonzola"],"nume":"Pizza Quattro Formaggi","pret":55.0,"categorie":"FelPrincipal","esteVegetarian":true}],"BauturiRacoritoare":[{"volum":400,"nume":"Limonada","pret":15.0,"categorie":"BauturiRacoritoare","esteVegetarian":true},{"volum":500,"nume":"Apa Plata","pret":8.0,"categorie":"BauturiRacoritoare","esteVegetarian":true},{"volum":200,"nume":"Coca-Cola","pret":12.0,"categorie":"BauturiRacoritoare","esteVegetarian":true}],"Desert":[{"gramaj":150,"nume":"Cheesecake","pret":32.0,"categorie":"Desert","esteVegetarian":true}]}
+[
+  {
+    "nume": "Pizza Margherita",
+    "pret": 45.0,
+    "categorie": "FelPrincipal",
+    "esteVegetarian": true,
+    "gramaj": 450
+  },
+  {
+    "nume": "Paste Carbonara",
+    "pret": 52.5,
+    "categorie": "FelPrincipal",
+    "esteVegetarian": false,
+    "gramaj": 400
+  },
+  {
+    "nume": "Șnițel de Pui cu Cartofi",
+    "pret": 48.0,
+    "categorie": "FelPrincipal",
+    "esteVegetarian": false,
+    "gramaj": 500
+  },
+  {
+    "nume": "Pizza Quattro Formaggi",
+    "pret": 55.0,
+    "categorie": "FelPrincipal",
+    "esteVegetarian": true,
+    "blat": "Subtire",
+    "sos": "Sos de rosii",
+    "toppinguri": ["Mozzarella", "Gorgonzola"]
+  },
+  {
+    "nume": "Limonada",
+    "pret": 15.0,
+    "categorie": "BauturiRacoritoare",
+    "esteVegetarian": true,
+    "volum": 400
+  },
+  {
+    "nume": "Fresh de Portocale",
+    "pret": 18.0,
+    "categorie": "BauturiRacoritoare",
+    "esteVegetarian": true,
+    "volum": 300
+  },
+  {
+    "nume": "Bere Artizanală",
+    "pret": 22.0,
+    "categorie": "BauturiAlcoolice",
+    "esteVegetarian": false,
+    "volum": 500
+  },
+  {
+    "nume": "Cheesecake",
+    "pret": 32.0,
+    "categorie": "Desert",
+    "esteVegetarian": true,
+    "gramaj": 150
+  },
+  {
+    "nume": "Papanași cu Smântână",
+    "pret": 35.0,
+    "categorie": "Desert",
+    "esteVegetarian": true,
+    "gramaj": 300
+  },
+  {
+    "nume": "Lava Cake",
+    "pret": 32.0,
+    "categorie": "Desert",
+    "esteVegetarian": true,
+    "gramaj": 150
+  }
+]

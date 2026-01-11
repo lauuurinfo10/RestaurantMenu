@@ -1,15 +1,14 @@
-package org.example;
+package org.example.model;
 
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 
 @Entity
-@DiscriminatorValue("MANCARE") // Aceasta este valoarea care va apărea în coloana tip_produs
+@DiscriminatorValue("MANCARE")
 public final class Mancare extends Produs {
 
     private int gramaj;
 
-    // 1. Constructor obligatoriu pentru JPA (Hibernate are nevoie de el)
     public Mancare() {
         super();
     }

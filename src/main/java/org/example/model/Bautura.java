@@ -1,15 +1,14 @@
-package org.example;
+package org.example.model;
 
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 
 @Entity
-@DiscriminatorValue("BAUTURA") // Valoarea care va fi salvată în coloana tip_produs
+@DiscriminatorValue("BAUTURA")
 public final class Bautura extends Produs {
 
     private int volum;
 
-    // Constructor gol necesar pentru Hibernate/JPA
     public Bautura() {
         super();
     }

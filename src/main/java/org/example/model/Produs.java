@@ -1,13 +1,12 @@
-package org.example;
+package org.example.model;
 
 import jakarta.persistence.*;
-import com.google.gson.annotations.Expose;
 
 @Entity
 @Table(name = "produse")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "tip_produs", discriminatorType = DiscriminatorType.STRING)
-// Am eliminat 'sealed' pentru a evita erorile de tip "Proxy" în Hibernate
+
 public abstract class Produs {
 
     @Id
@@ -27,7 +26,6 @@ public abstract class Produs {
     @Column(name = "este_vegetarian")
     private boolean esteVegetarian;
 
-    // Constructorul fără argumente este OBLIGATORIU pentru JPA
     protected Produs() {}
 
     public Produs(String nume, float pret, CategorieMeniu categorie, boolean esteVegetarian) {
@@ -36,8 +34,6 @@ public abstract class Produs {
         this.categorie = categorie;
         this.esteVegetarian = esteVegetarian;
     }
-
-    // --- Getters și Setters ---
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
@@ -54,13 +50,10 @@ public abstract class Produs {
     public boolean getEsteVegetarian() { return esteVegetarian; }
     public void setEsteVegetarian(boolean esteVegetarian) { this.esteVegetarian = esteVegetarian; }
 
-    // --- Metode Utilitare ---
-
     public String getDetaliiMeniu() {
         return "> " + getNume() + " - " + getPret() + " RON - " + getCantitate();
     }
 
-    // Metoda abstractă cerută pentru ierarhie
     public abstract String getCantitate();
 
     @Override

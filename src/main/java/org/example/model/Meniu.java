@@ -1,4 +1,4 @@
-package org.example;
+package org.example.model;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -10,14 +10,12 @@ import java.util.stream.Collectors;
 import java.util.OptionalDouble;
 import java.util.Optional;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.*;
-import java.util.stream.Collectors;
 
 
- public class Meniu {
+public class Meniu {
      private Map<CategorieMeniu, List<Produs>> meniuStructurat;
 
      public Meniu() {

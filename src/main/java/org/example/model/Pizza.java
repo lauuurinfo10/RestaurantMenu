@@ -1,6 +1,7 @@
-package org.example;
+package org.example.model;
 
 import jakarta.persistence.*;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;

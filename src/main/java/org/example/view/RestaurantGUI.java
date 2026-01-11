@@ -1,4 +1,4 @@
-package org.example;
+package org.example.view;
 
 import com.google.gson.*;
 import javafx.application.Application;
@@ -9,6 +9,11 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import org.example.model.Bautura;
+import org.example.model.Mancare;
+import org.example.model.Pizza;
+import org.example.model.Produs;
+import org.example.repository.ProdusRepository;
 
 import java.io.File;
 import java.io.FileReader;
@@ -35,11 +40,9 @@ public class RestaurantGUI extends Application {
 
         BorderPane root = new BorderPane();
 
-        // ✅ MenuBar - Bara de meniu (0.5p)
         MenuBar menuBar = creeazaMenuBar(stage);
         root.setTop(menuBar);
 
-        // Layout principal
         BorderPane content = new BorderPane();
         content.setPadding(new Insets(10));
         content.setLeft(creeazaLista());
@@ -51,21 +54,17 @@ public class RestaurantGUI extends Application {
         stage.setScene(scene);
         stage.show();
 
-        // Încarcă produsele din DB la pornire
         incarcaProduseDinDB();
     }
 
-    // Creează bara de meniu
     private MenuBar creeazaMenuBar(Stage stage) {
         MenuBar menuBar = new MenuBar();
 
         Menu menuFile = new Menu("File");
 
-        // Export JSON
         MenuItem exportItem = new MenuItem("Export JSON");
         exportItem.setOnAction(e -> exportJSON(stage));
 
-        // Import JSON
         MenuItem importItem = new MenuItem("Import JSON");
         importItem.setOnAction(e -> importJSON(stage));
 
@@ -131,7 +130,6 @@ public class RestaurantGUI extends Application {
             float pretNou = Float.parseFloat(txtPret.getText());
             p.setPret(pretNou);
 
-            // Salvează în DB
             repository.actualizeaza(p);
 
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
@@ -145,7 +143,6 @@ public class RestaurantGUI extends Application {
         }
     }
 
-    // Încarcă produse din DB
     private void incarcaProduseDinDB() {
         try {
             List<Produs> produse = repository.gasesteToate();
@@ -158,7 +155,6 @@ public class RestaurantGUI extends Application {
         }
     }
 
-    // Export JSON - Salvează DB în fișier
     private void exportJSON(Stage stage) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Export JSON");
@@ -189,7 +185,6 @@ public class RestaurantGUI extends Application {
         }
     }
 
-    // Import JSON - Citește fișier și adaugă în DB
     private void importJSON(Stage stage) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Import JSON");
@@ -208,13 +203,11 @@ public class RestaurantGUI extends Application {
                     if (produseArr != null) {
                         List<Produs> deSalvat = new ArrayList<>();
                         for (Produs p : produseArr) {
-                            // CRITIC: Resetăm ID-ul pentru ca PostgreSQL să genereze unul nou
-                            // Altfel vei primi eroare de tip "PersistentObjectException"
                             p.setId(null);
                             deSalvat.add(p);
                         }
-                        repository.salveazaToate(deSalvat); // Salvare în DB (0.5p)
-                        incarcaProduseDinDB(); // Actualizare interfață (0.5p)
+                        repository.salveazaToate(deSalvat);
+                        incarcaProduseDinDB();
 
                         new Alert(Alert.AlertType.INFORMATION, "Import reușit!").show();
                     }
@@ -225,20 +218,18 @@ public class RestaurantGUI extends Application {
         }
     }
 
-    // Deserializer pentru import JSON corect
     private static class ProdusDeserializer implements JsonDeserializer<Produs> {
         @Override
         public Produs deserialize(JsonElement json, java.lang.reflect.Type typeOfT,
                                   JsonDeserializationContext context) throws JsonParseException {
             JsonObject obj = json.getAsJsonObject();
 
-            // Detectăm tipul după câmpurile unice cerute în iterațiile anterioare
             if (obj.has("gramaj")) {
-                return context.deserialize(json, Mancare.class); // [cite: 40]
+                return context.deserialize(json, Mancare.class);
             } else if (obj.has("volum")) {
-                return context.deserialize(json, Bautura.class); // [cite: 40]
+                return context.deserialize(json, Bautura.class);
             } else if (obj.has("blat") || obj.has("toppinguri")) {
-                return context.deserialize(json, Pizza.class); //
+                return context.deserialize(json, Pizza.class);
             }
             throw new JsonParseException("Tip de produs necunoscut!");
         }

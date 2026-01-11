@@ -9,27 +9,29 @@
 
         <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
 
-        <class>org.example.Produs</class>
-        <class>org.example.Mancare</class>
-        <class>org.example.Bautura</class>
-        <class>org.example.Pizza</class>
+        <class>org.example.model.Produs</class>
+        <class>org.example.model.Mancare</class>
+        <class>org.example.model.Bautura</class>
+        <class>org.example.model.Pizza</class>
+
+        <class>org.example.model.User</class>
+        <class>org.example.model.Masa</class>
+        <class>org.example.model.Comanda</class>
+        <class>org.example.model.ComandaItem</class>
+        <class>org.example.model.SetariSistem</class>
 
         <properties>
-
-            <property name="jakarta.persistence.jdbc.url"
-                      value="jdbc:postgresql://localhost:5432/restaurant_db"/>
+            <property name="jakarta.persistence.jdbc.url" value="jdbc:postgresql://localhost:5432/restaurant_db"/>
             <property name="jakarta.persistence.jdbc.user" value="laurr"/>
-
-
-            <property name="jakarta.persistence.jdbc.password" value=""/>
-
-            <property name="jakarta.persistence.jdbc.driver" value="org.postgresql.Driver"/>
+            <property name="jakarta.persistence.jdbc.password" value=""/> <property name="jakarta.persistence.jdbc.driver" value="org.postgresql.Driver"/>
 
             <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect"/>
             <property name="hibernate.show_sql" value="true"/>
             <property name="hibernate.format_sql" value="true"/>
-            <property name="hibernate.hbm2ddl.auto" value="create"/>
+
+            <property name="hibernate.hbm2ddl.auto" value="update"/>
+
+            <property name="hibernate.enable_lazy_load_no_trans" value="true"/>
         </properties>
     </persistence-unit>
-
 </persistence>

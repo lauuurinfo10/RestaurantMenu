@@ -1,47 +1,48 @@
 package org.example;
 
-import java.util.List;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.Persistence;
+import org.example.controller.LoginController;
+import org.example.model.*;
+import org.example.repository.*;
+import org.example.service.AuthService;
+import org.example.view.LoginView;
 
 public class Main {
     public static void main(String[] args) {
 
         Configuratie config = Configuratie.incarcaDinFisier("config.json");
 
-        ProdusRepository repository = new ProdusRepository();
+        EntityManagerFactory emf = Persistence.createEntityManagerFactory("RestaurantPU");
 
+        ProdusRepository produsRepo = new ProdusRepository(emf);
+        UserRepository userRepo = new UserRepository(emf);
+        MasaRepository masaRepo = new MasaRepository(emf);
 
-        List<Produs> produseExistente = repository.gasesteToate();
+        populeazaDateStructurale(userRepo, masaRepo);
 
-        if (produseExistente.isEmpty()) {
-            System.out.println("Baza de date e goală. Populez cu date inițiale...");
+        AuthService authService = new AuthService(userRepo);
+        LoginController loginController = new LoginController(authService, emf);
 
+        System.out.println("Lansare sistem " + config.getNumeRestaurant() + "...");
+        LoginView.lanseaza(loginController, emf);
+    }
 
-            repository.salveaza(new Mancare("Pizza Margherita", 45.0f, CategorieMeniu.FelPrincipal, true, 450));
-            repository.salveaza(new Mancare("Paste Carbonara", 52.5f, CategorieMeniu.FelPrincipal, false, 400));
-            repository.salveaza(new Mancare("Salată Caesar", 35.0f, CategorieMeniu.Aperitive, false, 300));
-            repository.salveaza(new Mancare("Tiramisu", 28.0f, CategorieMeniu.Desert, true, 200));
-
-            repository.salveaza(new Bautura("Limonada", 15.0f, CategorieMeniu.BauturiRacoritoare, true, 400));
-            repository.salveaza(new Bautura("Apa Plata", 8.0f, CategorieMeniu.BauturiRacoritoare, true, 500));
-            repository.salveaza(new Bautura("Vin Rosu", 45.0f, CategorieMeniu.BauturiAlcoolice, false, 150));
-
-            Pizza pizza = Pizza.builder("Quattro Formaggi")
-                    .cuBlat("Subtire")
-                    .cuSos("Sos de rosii")
-                    .cuPret(55.0)
-                    .vegetariana(true)
-                    .adaugaTopping("Mozzarella")
-                    .adaugaTopping("Gorgonzola")
-                    .build();
-            repository.salveaza(pizza);
-
-            System.out.println("Date inițiale adăugate!");
-        } else {
-            System.out.println("Baza de date conține " + produseExistente.size() + " produse.");
+    private static void populeazaDateStructurale(UserRepository uRepo, MasaRepository mRepo) {
+        if (uRepo.gasesteToate().isEmpty()) {
+            System.out.println("Baza de date goală. Creez utilizatorii impliciți...");
+            uRepo.salveaza(new User("admin", "admin123", RolUser.MANAGER, "Andrei Manager"));
+            uRepo.salveaza(new User("ospatar1", "pass1", RolUser.OSPATAR, "Laurr"));
+            uRepo.salveaza(new User("ospatar2", "pass2", RolUser.OSPATAR, "Ionel"));
+            uRepo.salveaza(new User("guest", "guest", RolUser.CLIENT, "Client Masa"));
         }
 
+        if (mRepo.gasesteToate().isEmpty()) {
+            System.out.println("Creez mesele restaurantului...");
+            for (int i = 1; i <= 8; i++) {
+                mRepo.salveaza(new Masa(i));
+            }
+        }
 
-        System.out.println("Lansare interfață grafică...");
-        RestaurantGUI.lanseaza(repository, config.getNumeRestaurant());
     }
 }
