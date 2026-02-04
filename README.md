@@ -1,4 +1,4 @@
-# MIP_Tema1 - Restaurant Management System
+# Restaurant Management System
 
 ## Overview
 This is a Java application designed for managing restaurant operations, including user authentication, order processing, and various interfaces for different user roles (client, manager, waiter).
